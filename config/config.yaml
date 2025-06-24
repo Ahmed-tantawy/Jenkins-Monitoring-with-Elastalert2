@@ -1,0 +1,42 @@
+buffer_time:
+  hours: 24
+# Path to the rules folder
+rules_folder: rules
+# Frequency to check for new data
+run_every:
+  minutes: 1
+  # No buffer time, process data immediately
+
+# Elasticsearch host configuration
+es_host: "localhost"
+es_port: 9499
+use_ssl: false
+verify_certs: false
+writeback_index: "elastalert_status"  # Index for ElastAlert status data
+
+module_dir: C:\\elasticsearch-8.14.3\\elastalert2
+
+# How often ElastAlert 2 should check for rule changes 
+scan_subdirectories: true
+
+# Logging configuration
+logging:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    simple:
+      format: '%(asctime)s %(levelname)s %(message)s'
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: simple
+      stream: ext://sys.stdout
+    file:
+      class: logging.FileHandler
+      level: DEBUG
+      formatter: simple
+      filename: "C:\\elasticsearch-8.14.3\\elastalert2\\elastalert2.log"
+  root:
+    level: DEBUG
+    handlers: [console, file]
