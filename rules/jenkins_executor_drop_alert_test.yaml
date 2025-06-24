@@ -1,0 +1,75 @@
+# Jenkins Executor Drop Alert Rule - PRODUCTION
+name: jenkins_executor_drop_alert
+
+# Rule type - use 'any' to enable our custom enhancement logic
+type: any
+
+# Time settings - check every 5 minutes in production
+run_every:
+  minutes: 5
+
+# Reasonable timeframe for production
+timeframe:
+  hours: 2
+
+# Elasticsearch connection settings
+index: your-index
+es_host: localhost        
+es_port: 9200                         
+# es_username: elastic
+# es_password: password
+
+# Filter for live Jenkins metrics
+filter:
+- query:
+    bool:
+      must:
+        - match_phrase:
+            service.name: jenkins
+        - match_phrase:
+            labels.label: pool
+        - match_phrase:
+            processor.event: metric
+
+# Enhancement module to process metrics and detect drops
+match_enhancements:
+- jenkins_metrics_drop_alert.JenkinsMetricsDropAlert
+
+# Alert if any metric drops by at least this percentage
+threshold_percentage: 30.0
+
+# How many periods to look back for comparison
+window_size: 2
+
+# Alert methods
+alert:
+- command
+- email
+
+# Command settings for PowerShell script
+command: [
+  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "-ExecutionPolicy", "Bypass",
+  "-File", "C:\\path\\to\\your\\production\\webhook.ps1",  
+  "-CurrentMax", "%(current_max)s",
+  "-PreviousMax", "%(previous_max)s", 
+  "-MaxDrop", "%(max_drop)s",
+  "-CurrentMedian", "%(current_median)s",
+  "-PreviousMedian", "%(previous_median)s",
+  "-MedianDrop", "%(median_drop)s",
+  "-CurrentMin", "%(current_min)s",
+  "-PreviousMin", "%(previous_min)s",
+  "-MinDrop", "%(min_drop)s",
+  "-LargestDrop", "%(largest_drop_value)s",
+  "-LargestDropMetric", "%(largest_drop_metric)s",
+  "-AlertReason", "%(alert_reason)s",
+  "-Threshold", "%(threshold)s",
+  "-Timestamp", "%(timestamp)s"
+]
+
+# Email configuration for alerts
+email:
+  - test@gmail.com
+# Alert once every 30 minutes if issue persists
+realert:
+  minutes: 30
