@@ -1,0 +1,7 @@
+elastalert2>=2.10.0
+elasticsearch>=7.0.0,<8.0.0
+PyYAML>=5.4.1
+requests>=2.25.1
+jinja2>=2.11.3
+python-dateutil>=2.8.1
+croniter>=1.0.15
