@@ -90,37 +90,14 @@ jenkins-elastalert-monitoring/
 ├── README.md
 ├── requirements.txt
 ├── config/
-│   ├── config.yaml.example
-│   ├── logstash/
-│   │   └── jenkins-pipeline.conf
-│   └── kibana/
-│       └── dashboard-export.json
+│   ├── config.yaml
 ├── rules/
-│   ├── jenkins-job-failure.yaml
-│   ├── jenkins-build-time-spike.yaml
-│   ├── jenkins-queue-buildup.yaml
-│   └── jenkins-node-offline.yaml
+│   ├── jenkins_executor_drop_alert_test.yaml
 ├── modules/
-│   ├── __init__.py
 │   ├── jenkins_metrics_drop_alert.py
-│   ├── slack_jenkins_alert.py
-│   └── webhook_jenkins_alert.py
-├── templates/
-│   ├── alert-templates/
-│   └── rule-templates/
-├── docker/
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   └── .env.example
 ├── scripts/
-│   ├── setup.sh
-│   ├── test-rules.sh
-│   └── validate-config.py
-└── docs/
-    ├── SETUP.md
-    ├── RULES.md
-    ├── TROUBLESHOOTING.md
-    └── API.md
+│   ├── webhook.ps1
+
 ```
 
 ## 🔧 Usage
@@ -138,37 +115,16 @@ elastalert --config config/config.yaml --verbose
 nohup elastalert --config config/config.yaml > elastalert.log 2>&1 &
 ```
 
-### Docker Deployment
-
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-
-# Or run standalone container
-docker build -t jenkins-elastalert .
-docker run -d --name jenkins-elastalert \
-  -v $(pwd)/config:/app/config \
-  -v $(pwd)/rules:/app/rules \
-  jenkins-elastalert
-```
-
 ## 📊 Monitoring Rules
 
 ### Available Rules
 
 | Rule | Description | Trigger |
 |------|-------------|---------|
-| `jenkins-job-failure.yaml` | Detects job failures | Any job fails |
-| `jenkins-build-time-spike.yaml` | Monitors build duration | Build time > 2x average |
-| `jenkins-queue-buildup.yaml` | Queue monitoring | >10 jobs queued for 5min |
-| `jenkins-node-offline.yaml` | Node availability | Node goes offline |
-
+| `jenkins_executor_drop_alert_test.yaml` | Detects the drops of jenkins excutor with a specific threshold| 
 ### Creating Custom Rules
 
-1. Copy a template from `templates/rule-templates/`
-2. Modify the query and conditions
-3. Place in `rules/` directory
-4. Test with `elastalert-test-rule`
+
 
 Example rule structure:
 ```yaml
@@ -195,56 +151,17 @@ slack_webhook_url: "https://hooks.slack.com/..."
 
 ### Supported Integrations
 
-- **Slack** - Rich notifications with build details
 - **Email** - HTML formatted alerts
-- **Webhook** - Custom HTTP endpoints
-- **MS Teams** - Microsoft Teams integration
-- **PagerDuty** - Critical failure escalation
+- **Webhook** - Custom HTTP endpoints for team space on gmail
+
 
 ### Custom Alert Modules
 
 The project includes several custom alert handlers:
 
 - `jenkins_metrics_drop_alert.py` - Metrics-focused alerting
-- `slack_jenkins_alert.py` - Enhanced Slack notifications
-- `webhook_jenkins_alert.py` - Flexible webhook integration
 
-## 📈 Dashboards
 
-Import the included Kibana dashboard (`config/kibana/dashboard-export.json`) for visualization:
-
-- Jenkins job success/failure rates
-- Build duration trends
-- Queue length over time
-- Node utilization metrics
-
-## 🧪 Testing
-
-```bash
-# Test all rules
-./scripts/test-rules.sh
-
-# Validate configuration
-python scripts/validate-config.py
-
-# Test specific rule
-elastalert-test-rule rules/jenkins-job-failure.yaml --days 1
-```
-
-## 🐳 Docker Support
-
-### Quick Start with Docker
-
-```bash
-# Clone and configure
-git clone https://github.com/yourusername/jenkins-elastalert-monitoring.git
-cd jenkins-elastalert-monitoring
-cp docker/.env.example docker/.env
-
-# Edit docker/.env with your settings
-# Start the stack
-docker-compose -f docker/docker-compose.yml up -d
-```
 
 ## 🛡️ Security
 
